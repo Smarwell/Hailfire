@@ -1,0 +1,12 @@
+
+*TO SOLVE THE INSTABILITY PROBLEM*
+disable program interrupts
+verify power supply
+shorten wires
+
+
+
+*TO SPEED UP CALCULATIONS*
+Change Rowberg's library to fastwire?
+Replace conditional with while loop to avoid FIFO overflow.
+replace trig functions with fast approximations

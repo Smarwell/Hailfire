@@ -1,0 +1,35 @@
+List of messages that a computer should be able to send to the drone:
+
+reset velocity set points
+reset all set points
+set flight mode (manual, autonomous)
+check communications
+
+for manual flight:
+	(basic control)
+	set base thrust level
+	set x velocity set point
+	set y velocity set point
+	set z velocity set point
+	(advanced control)
+	set x position set point
+	set y position set point
+	set z position set point
+	set yaw set point
+	
+For autonomous flight:
+	return to starting position
+	return to starting position and land
+	land in place
+	take off
+	hold position
+	wander
+
+
+
+List of messages that the drone should be able to send to the computer:
+
+Warning/Error (code)
+Telemetry (position + orientation + distance to nearest wall)
+check communications
+	

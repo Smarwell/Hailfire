@@ -1,0 +1,24 @@
+
+
+Motor interaction			Finished, in theory
+Gyro/accelereter interaction		Working, not perfect
+Serial interface			Not Started
+controller:				
+	set point management		Not Started
+	PID controllers			In progress
+User Interface:
+	PC GUI for easy control		Not Started
+	Standard for serial comm.	Not Started
+
+
+
+
+Target loop speed is *at least* 100Hz, so at most 10ms per cycle. Motor interaction eats 
+2ms out of that, and the Gyro/accelerometer eats another 2.5ms.
+
+That leaves 5.5ms for the controller and interface. It is in theory possible to allow for 
+controller calculations to happen while the motor controller does its job, but that makes for
+icky code, so I'll only do that if absolutely necessary. The MPU6050 interaction is more
+complicated, but there is also room to speed things up, namely by replacing trig functions
+used in the library with fast approximations (.5ms speed up), and by replacing the builtin
+Wire implementation with Fastwire (unknown speed up). 
