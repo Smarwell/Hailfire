@@ -82,11 +82,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Drone.cpp" />
     <ClCompile Include="Motors\Servo.cpp" />
     <ClCompile Include="MPU\MPU6050.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Comm.h" />
+    <ClInclude Include="Drone.h" />
     <ClInclude Include="Motors\Servo.h" />
     <ClInclude Include="MPU\helper_3dmath.h" />
     <ClInclude Include="MPU\MPU.h" />

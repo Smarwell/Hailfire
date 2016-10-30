@@ -4,6 +4,7 @@
  Author:	Jacob Sacco
 */
 
+#include "Drone.h"
 #include <Arduino.h>
 #include <Wire.h>
 #include <I2Cdev.h>
@@ -13,10 +14,9 @@
 bool autonomous_flight = false;
 
 int servo_pins[4] = { 2,3,4,5 };
-Servos s(servo_pins);
+Servos servos(servo_pins);
 
 MPU mpu = MPU();
-
 
 // the setup function runs once when you press reset or power the board
 void setup() {
