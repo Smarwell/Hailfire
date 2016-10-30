@@ -27,12 +27,15 @@
     <ClCompile Include="Drone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MPU\MPU.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPU\Comm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MPU\helper_3dmath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MPU\MPU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MPU\MPU6050.h">
@@ -54,6 +57,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Drone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPU\MPU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

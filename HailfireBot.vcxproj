@@ -84,6 +84,8 @@
   <ItemGroup>
     <ClCompile Include="Drone.cpp" />
     <ClCompile Include="Motors\Servo.cpp" />
+    <ClCompile Include="MPU\Comm.cpp" />
+    <ClCompile Include="MPU\MPU.cpp" />
     <ClCompile Include="MPU\MPU6050.cpp" />
   </ItemGroup>
   <ItemGroup>

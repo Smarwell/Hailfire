@@ -23,7 +23,9 @@ class Drone {
 public:
 	bool is_ready();
 	bool init();
-	void set_mode(int mode);
+	void set_mode(uint8_t mode);
+	void set_thrust(uint8_t arg);
+	void set_
 	void update();
 	void check_comms();
 
