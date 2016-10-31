@@ -1,6 +1,6 @@
 
-#include "Drone.h"
 #include "Comm.h"
+#include "Drone.h"
 
 Drone drone;
 
@@ -37,7 +37,7 @@ void comm_parse() {
 	case COMM_RESET_VEL:
 	case COMM_RESET_ALL:
 	case COMM_CHECK:
-		send_message(COMM_CHECK, 0);
+		send_message(COMM_CHECK, 0, "Communications check");
 		break;
 	case COMM_SET_MANUAL:
 		drone.set_mode(MODE_MANUAL);

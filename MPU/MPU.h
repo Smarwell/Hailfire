@@ -1,10 +1,20 @@
-#pragma
+#pragma once
+
+
+#include "../Comm.h"	//allows for use of error messages
+#include "../Drone.h"
+
+#include "I2Cdev.h"
+#include "MPU6050_6Axis_MotionApps20_edited.h"	//here be dragons
+
+#include "Wire.h"
 
 
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
 void dmpDataReady() {
 	mpuInterrupt = true;
 }
+
 
 /*
 Acts as a wrapper for the MPU6050 class
@@ -37,6 +47,13 @@ class MPU {
 	float stddev;
 	int valid_samples;
 
+	float gyro_offsets[3];
+
+	bool calibrated;
+
+	unsigned long int frame_start;
+	unsigned int time_passed;
+
 	MPU6050 mpu;
 
 	bool dmpReady = false;  // set true if DMP init was successful
@@ -52,23 +69,152 @@ class MPU {
 	VectorFloat gravity;    // [x, y, z]            gravity vector
 
 public:
+	float accel_offsets[3];
+
+	float* old_accel;
 	float accel[3];
 	float ypr[3];
+	float vel[3];
 
 	MPU() {};
 
 	/*Tries to initialize the MPU*/
-	int start();
+	int start() {
+		Wire.begin();
+		TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz)
+		mpu.initialize();
 
-	//Gets all current data from the MPU's DMP. Takes at least 2.5 milliseconds to do its job
-	int poll();
+		devStatus = mpu.dmpInitialize();
+		if (devStatus == 0) {
+			mpu.setDMPEnabled(true);
+
+			attachInterrupt(0, dmpDataReady, RISING);
+			mpuIntStatus = mpu.getIntStatus();
+
+			calibrated = false;
+
+			dmpReady = true;
+			packetSize = mpu.dmpGetFIFOPacketSize();
+			return 0;
+		}
+		else {
+			return 1;
+		}
+	};
+
+	//Gets all current data from the MPU's DMP. Takes at least 2.5 milliseconds to do its job,
+	//and will wait for 10 milliseconds to have passed since the last call if it is called
+	//in fewer than 10 milliseconds from the last call (A side effect of the DMP's functionality.
+	int poll() {
+
+		if (!dmpReady) {
+			return 1;
+		}
+		while (!mpuInterrupt && fifoCount < packetSize) {	//wait for the correct packet size
+			fifoCount = mpu.getFIFOCount();
+		}
+		mpuInterrupt = false;
+		mpuIntStatus = mpu.getIntStatus();
+		fifoCount = mpu.getFIFOCount();
+
+		if ((mpuIntStatus & 0x10) || fifoCount == 1024) {	//check for FIFO overflow
+			mpu.resetFIFO();
+			return 2;
+		}
+		else if (mpuIntStatus & 0x02) {		//data ready
+
+			while (fifoCount >= packetSize) {	//If multiple packets have been written to the FIFO,
+				mpu.getFIFOBytes(fifoBuffer, packetSize);	//Read packets until the most recent one is reached
+				time_passed = micros() - frame_start;
+				frame_start = micros();
+				fifoCount -= packetSize;
+				if (fifoCount >= packetSize) Serial.println("This is slow...");
+			}
+			mpu.dmpGetQuaternion(&q, fifoBuffer);	//get various vectors
+			mpu.dmpGetGravity(&gravity, &q);
+			mpu.dmpGetAccel(&aa, fifoBuffer);
+			mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);	//load the data into more easily used formats
+			mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+			old_accel = accel;
+			accel[0] = aaReal.x;
+			accel[1] = aaReal.y;
+			accel[2] = aaReal.z;
+
+			if (calibrated) {
+				for (int i = 0; i < 3; i++) {
+					accel[i] -= accel_offsets[i];
+					ypr[i] -= gyro_offsets[i];
+					vel[i] += ((accel[i]+old_accel[i])/2.0 * time_passed) / 1000000.0;
+				}
+			}
+		}
+		return 0;
+	};
 
 	/*Checks to see if the sensor is ready. It will call poll() once, and add that to a circular array
-	of samples. Every hundred times it's called, it will check to see if the standard deviation of the 
+	of samples. Every hundred times it's called, it will check to see if the standard deviation of the
 	data is below a threshold. When that happens it increments valid_samples (because sometimes the data
 	will stay stable for a moment without staying stable). When valid_samples hits five, the sensor is
 	considered ready.*/
-	bool get_sensor_ready();
+	bool get_sensor_ready() {
+		poll();
+		sample[sample_pos % 100] = accel[0];
+		sample_pos++;
+		if (sample_pos < 100) {
+			return false;
+		}
+		if (sample_pos % 100 == 0) {
+			average = 0;
+			for (int i = 0; i < 100; i++) {	//Calculate the average of the samples
+				average += sample[i] / 100;
+			}
+			stddev = 0;
+			for (int i = 0; i < 100; i++) {	//Calculate the standard deviation of the samples
+				stddev += (sample[i] - average)*(sample[i] - average) / 100;
+			}
+			if (stddev < 50) {		//Is the standard deviation below 50?
+				valid_samples++;
+				sample_pos = 0;
+			}
+			return valid_samples == 5;	//only return true if 5 valid sets of samples have been taken
+		}
+		else {
+			return false;
+		}
+	}
+
+	void calibrate() {
+		Serial.println("Calibrating");
+		
+		for (int i = 0; i < 1000; i++) {
+			if (poll() != 0) Serial.println("FUCK");
+			accel_offsets[0] += accel[0] / 1000.0;	//putting this in a for loop breaks it HARD.
+			accel_offsets[1] += accel[1] / 1000.0;	//Undefined behavior for seemingly no reason...
+			accel_offsets[2] += accel[2] / 1000.0;
+			gyro_offsets[0] += (ypr[0] / 1000.0);
+			gyro_offsets[1] += (ypr[1] / 1000.0);
+			gyro_offsets[2] += (ypr[2] / 1000.0);
+		}
+		/*
+		Serial.println(accel_offsets[0]);
+		Serial.println(accel_offsets[1]);
+		Serial.println(accel_offsets[2]);
+		Serial.println(gyro_offsets[0]);
+		Serial.println(gyro_offsets[1]);
+		Serial.println(gyro_offsets[2]);
+		*/
+		accel_offsets[0] = 22.56;
+		accel_offsets[1] = -14.82;
+		accel_offsets[2] = -318.353;
+		gyro_offsets[0] = 20.89;
+		gyro_offsets[1] = 0.77;
+		gyro_offsets[2] = -0.48;
+
+		vel[0] = 0;
+		vel[1] = 0;
+		vel[2] = 0;
+		calibrated = true;
+	}
 
 	float accel_x() { return accel[0]; }
 	float accel_y() { return accel[1]; }
@@ -81,4 +227,14 @@ public:
 /*Just repeatedly calls get_sensor_ready until it returns true. If more than 45 seconds passes
 without the mpu being ready, it times out. It typically takes 20 to 30 seconds for the data
 coming from the MPU to stabilize.*/
-bool wait_for_MPU_ready(MPU& mpu);
+bool wait_for_MPU_ready(MPU& mpu) {
+	unsigned long int start = millis();
+	//while (!mpu.get_sensor_ready()) {
+	//	if (millis() - start > 45000) return false;
+	//}
+	while (millis() - start < 30000) {
+		mpu.poll();
+	}
+	mpu.calibrate();
+	return true;
+}

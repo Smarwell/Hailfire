@@ -21,11 +21,11 @@ class Drone {
 	bool ready;
 
 public:
+	Drone(): servos(servo_pins) {};
 	bool is_ready();
 	bool init();
 	void set_mode(uint8_t mode);
 	void set_thrust(uint8_t arg);
-	void set_
 	void update();
 	void check_comms();
 

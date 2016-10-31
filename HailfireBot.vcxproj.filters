@@ -24,12 +24,6 @@
     <ClCompile Include="MPU\MPU6050.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Drone.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MPU\MPU.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MPU\Comm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

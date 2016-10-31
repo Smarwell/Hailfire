@@ -20,25 +20,23 @@ is called.
 For typically 20 to 30 seconds after the MPU is started up, the data will drift
 quite a bit. For this reason, the drone should wait for the data to stabilize before trying
 to fly. Once the 'warmup' period has passed, the gyroscope data is in general very reliable,
-but accelerometer data is pretty noisy.
+though accelerometer data is pretty noisy.
 */
-
-
-#include "MPU.h"
-#include "Comm.h"	//allows for use of error messages
-#include "Drone.h"
-
-#include "I2Cdev.h"
-#include "MPU6050_6Axis_MotionApps20_edited.h"	//here be dragons
-
-#include "Wire.h"
 
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
 void dmpDataReady() {
 	mpuInterrupt = true;
 }
 
+#include "../Comm.h"	//allows for use of error messages
+#include "../Drone.h"
 
+#include "I2Cdev.h"
+#include "MPU6050_6Axis_MotionApps20_edited.h"	//here be dragons
+
+#include "Wire.h"
+
+#include "MPU.h"
 
 /*Tries to initialize the MPU*/
 int MPU::start() {
@@ -52,6 +50,8 @@ int MPU::start() {
 
 		attachInterrupt(0, dmpDataReady, RISING);
 		mpuIntStatus = mpu.getIntStatus();
+
+		calibrated = false;
 
 		dmpReady = true;
 		packetSize = mpu.dmpGetFIFOPacketSize();
@@ -68,6 +68,7 @@ int MPU::start() {
 //and will wait for 10 milliseconds to have passed since the last call if it is called
 //in fewer than 10 milliseconds from the last call (A side effect of the DMP's functionality.
 int MPU::poll() {
+
 	if (!dmpReady) {
 		return 1;
 	}
@@ -86,6 +87,8 @@ int MPU::poll() {
 
 		while (fifoCount >= packetSize) {	//If multiple packets have been written to the FIFO,
 			mpu.getFIFOBytes(fifoBuffer, packetSize);	//Read packets until the most recent one is reached
+			time_passed = micros() - frame_start;
+			frame_start = micros();
 			fifoCount -= packetSize;
 		}
 		mpu.dmpGetQuaternion(&q, fifoBuffer);	//get various vectors
@@ -96,6 +99,14 @@ int MPU::poll() {
 		accel[0] = aaReal.x;
 		accel[1] = aaReal.y;
 		accel[2] = aaReal.z;
+
+		if (calibrated) {
+			for (int i = 0; i < 3; i++) {
+				accel[i] -= accel_offsets[i];
+				ypr[i] -= gyro_offsets[i];
+				vel[i] += accel[i] * time_passed;
+			}
+		}
 	}
 	return 0;
 };
@@ -132,7 +143,21 @@ bool MPU::get_sensor_ready() {
 	else {
 		return false;
 	}
+}
 
+
+void MPU::calibrate() {
+	for (int i = 0; i < 100; i++) {
+		poll();
+		for (int i = 0; i < 3; i++) {
+			gyro_offsets[i] += ypr[i] / 100.0;
+			accel_offsets[i] += accel[i] / 100.0;
+		}
+	}
+	vel[0] = 0;
+	vel[1] = 0;
+	vel[2] = 0;
+	calibrated = true;
 }
 
 
@@ -145,5 +170,6 @@ bool wait_for_MPU_ready(MPU& mpu) {
 	while (!mpu.get_sensor_ready()) {
 		if (millis() - start > 45000) return false;
 	}
+	mpu.calibrate();
 	return true;
 }

@@ -21,18 +21,21 @@ MPU mpu = MPU();
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
+	Serial.println("Starting MPU");
 	mpu.start();
-	while (!mpu.get_sensor_ready());
+	Serial.println("Waiting for data to stabilize");
+	if (!wait_for_MPU_ready(mpu)) {
+		Serial.println("Startup failed.");
+		while (1) {
+			Serial.print(" 1 ");
+		}
+	}
+	
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
-	/*
-	for (int i = 0; i < 0; i++) {
-		mpu.poll();
-		delay(0);
-	}*/
 	mpu.poll();
-	Serial.println(String(mpu.accel_x()));
-	//Serial.println("\n\n");
+	autonomous_flight = !autonomous_flight;
+	if (autonomous_flight) Serial.println(mpu.vel[0]);
 }

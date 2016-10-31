@@ -8,6 +8,8 @@ is the content of the message. For example, (5,127) is a command to
 set the baseline thrust to ~50% (127/255).
 */
 
+#include <Arduino.h>
+
 //Things the drone can be sent
 //Relevant in both autonomous and manual
 #define COMM_RESET_VEL		0
@@ -42,6 +44,7 @@ set the baseline thrust to ~50% (127/255).
 #define INVALID_INPUT		0
 #define MPU_INIT_FAILED		1
 #define MPU_FIFO_OVERFLOW	2
+#define MPU_CALIBRATED		3
 
 bool debug = false;
 
