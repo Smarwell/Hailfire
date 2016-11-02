@@ -27,6 +27,7 @@ public:
 	void set_mode(uint8_t mode);
 	void set_thrust(uint8_t arg);
 	void update();
-	void check_comms();
-
+	void periodic_update();
+	void reset_gyro_setpoint(int);
+	void reset_gyro_setpoints();
 };

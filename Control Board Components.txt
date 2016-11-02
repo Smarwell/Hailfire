@@ -1,0 +1,13 @@
+
+bluetooth module
+gyro/accelerometer
+Battery voltage checker thing
+gigantic capacitor
+headers for tacking on extra stuff
+headers to attach the mega
+LEDs (2?)
+four arm LEDS
+headers for the ESCs to plug into
+One spot for a ultrasonic sensor to go
+two headers for additional ultrasonic sensors to plug into
+reset button

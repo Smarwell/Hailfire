@@ -15,10 +15,6 @@ set the baseline thrust to 127/255, or about 50%.
 uint8_t comm_command, comm_arg;
 uint8_t output_buffer[28];
 
-bool relevant(uint8_t command) {
-	return command <= COMM_SET_AUTO || autonomous_flight ^ (command < COMM_RETURN_START);
-}
-
 void send_message(uint8_t type, uint8_t data = 0, String message="") { 
 	if (debug) {
 		Serial.println(message);
@@ -34,33 +30,24 @@ void send_telem() {
 
 void comm_parse() {
 	switch (comm_command) {
-	case COMM_RESET_VEL:
-	case COMM_RESET_ALL:
+	case RESET_VEL:
+	case RESET_ALL:
 	case COMM_CHECK:
 		send_message(COMM_CHECK, 0, "Communications check");
 		break;
-	case COMM_SET_MANUAL:
+	case RESET:
+	case POWER_OFF:
+	case FAST_LAND:
+	case SET_MANUAL:
 		drone.set_mode(MODE_MANUAL);
 		break;
-	case COMM_SET_AUTO:
+	case SET_AUTO:
 		drone.set_mode(MODE_HOLD_POS);
 		break;
-	case COMM_SET_THRUST:
-	case COMM_SET_X_VEL:
-	case COMM_SET_Y_VEL:
-	case COMM_SET_Z_VEL:
-	case COMM_SET_X_POS:
-	case COMM_SET_Y_POS:
-	case COMM_SET_Z_POS:
-	case COMM_SET_YAW:
-	case COMM_RETURN_START:
-	case COMM_RETURN_LAND:
-	case COMM_LAND:
-	case COMM_TAKE_OFF:
-	case COMM_HOLD_POS:
-	case COMM_WANDER:
+	case SET_THRUST:
+	case SET_YAW:
 	default:
-		send_message(COMM_WARN, INVALID_INPUT, "Bad input given");
+		send_message(WARN, INVALID_INPUT, "Bad input given");
 		break;
 	}
 }
@@ -79,9 +66,7 @@ void check_for_message() {
 	if (Serial.available() > 1) {
 		comm_command = Serial.read();
 		comm_arg = Serial.read();
-		if (relevant(comm_command)) {
-			comm_parse();
-		}
+		comm_parse();
 	}
 }
 

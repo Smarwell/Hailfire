@@ -68,6 +68,10 @@ void Servo::modify_power(double dpower) {
 	write_pulse_width(int(dpower*(max_pulse_width - min_pulse_width)) + pulse_width);
 }
 
+int Servo::get_power() {
+	return pulse_width;
+}
+
 
 
 ///////////////////////////////////////////////
@@ -126,5 +130,18 @@ void Servos::update() {
 	for (int i = 0; i < 4; i++) {
 		while (micros() < pulses[queue[i]]) {};
 		servos[queue[i]].end_pulse();
+	}
+}
+
+int* Servos::get_power_levels() {
+	for (int i = 0; i < 4; i++) {
+		power_levels[i] = servos[i].get_power();
+	}
+	return power_levels;
+}
+
+void Servos::write_power_levels(int* new_powers) {
+	for (int i = 0; i < 4; i++) {
+		servos[i].write_pulse_width(new_powers[i]);
 	}
 }

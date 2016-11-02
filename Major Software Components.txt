@@ -2,13 +2,13 @@
 
 Motor interaction			Finished, in theory
 Gyro/accelereter interaction		Working, not perfect
-Serial interface			Not Started
+Serial interface			Mostly Done
 controller:				
 	set point management		Not Started
 	PID controllers			In progress
 User Interface:
 	PC GUI for easy control		Not Started
-	Standard for serial comm.	Not Started
+	Standard for serial comm.	In progress
 
 
 

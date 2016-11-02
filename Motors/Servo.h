@@ -57,7 +57,7 @@ public:
 	void set_power(double power);
 	void modify_power(double dpower);
 
-
+	int get_power();
 };
 
 
@@ -82,6 +82,7 @@ class Servos {
 	int swap_temp;
 	bool modified;
 	bool should_update_queue;
+	int power_levels[4];
 
 	void update_queue();
 	void new_pulse();
@@ -91,4 +92,6 @@ public:
 	Servos(int pins[4]);
 	Servo& operator[](int i);
 	void update();
+	int* get_power_levels();
+	void write_power_levels(int*);
 };

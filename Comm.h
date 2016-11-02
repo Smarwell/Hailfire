@@ -10,41 +10,38 @@ set the baseline thrust to ~50% (127/255).
 
 #include <Arduino.h>
 
-//Things the drone can be sent
-//Relevant in both autonomous and manual
-#define COMM_RESET_VEL		0
-#define COMM_RESET_ALL		1
-#define COMM_CHECK			2
-#define COMM_SET_MANUAL		3
-#define COMM_SET_AUTO		4
-//Relevant only in manual
-#define COMM_SET_THRUST		5
-#define COMM_SET_X_VEL		6
-#define COMM_SET_Y_VEL		7
-#define COMM_SET_Z_VEL		8
-#define COMM_SET_X_POS		9
-#define COMM_SET_Y_POS		10
-#define COMM_SET_Z_POS		11
-#define COMM_SET_YAW		12
-//relevant only in autonomous
-#define COMM_RETURN_START	13
-#define COMM_RETURN_LAND	14
-#define COMM_LAND			15
-#define COMM_TAKE_OFF		16
-#define COMM_HOLD_POS		17
-#define COMM_WANDER			18
+enum comm {
+	RESET_VEL,
+	RESET_ALL,
+	COMM_CHECK,
+	RESET,
+	POWER_OFF,
+	FAST_LAND,
+	SET_MANUAL,
+	SET_AUTO,
+	SET_THRUST,
+	SET_X_VEL,
+	SET_Y_VEL,
+	SET_Z_VEL,
+	SET_YAW,
+	SET_PITCH,
+	SET_ROLL,
+	RETURN_START,
+	RETURN_LAND,
+	LAND,
+	TAKE_OFF,
+	HOLD_POS,
+	WANDER,
 
+	WARN,
+	TELEM,
+	CHECK,
 
-//Things the drone can send
-#define COMM_WARN			0
-#define COMM_TELEM			1
-//		COMM_CHECK			2
-
-//Error messages
-#define INVALID_INPUT		0
-#define MPU_INIT_FAILED		1
-#define MPU_FIFO_OVERFLOW	2
-#define MPU_CALIBRATED		3
+	INVALID_INPUT,
+	MPU_INIT_FAILED,
+	MPU_FIFO_OVERFLOW,
+	MPU_CALIBRATED
+};
 
 bool debug = false;
 
@@ -53,9 +50,6 @@ uint8_t comm_command, comm_arg;
 //Holds telemetry data [x, y, z, yaw, pitch, roll, distance to wall].
 //Not useful yet.
 uint8_t output_buffer[28];
-
-//Checks whether a command is relevant given the drone's current mode
-bool relevant(uint8_t command);
 
 //Sends a message to the computer.
 void send_message(uint8_t type, uint8_t data = 0, String message = "");
