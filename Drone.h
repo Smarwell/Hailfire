@@ -1,12 +1,14 @@
 #pragma once
 
-#define MODE_MANUAL				0
-#define MODE_RETURNING			1
-#define MODE_RETURNING_LANDING	2
-#define MODE_LANDING			3
-#define MODE_LANDED				4
-#define MODE_HOLD_POS			5
-#define MODE_WANDER				6
+enum modes {
+	MANUAL,
+	RETURNING,
+	RETURNING_LANDING,
+	LANDING,
+	LANDED,
+	HOLD_POS,
+	WANDER
+};
 
 #include <Arduino.h>
 #include "Motors\Servo.h"
@@ -30,4 +32,7 @@ public:
 	void periodic_update();
 	void reset_gyro_setpoint(int);
 	void reset_gyro_setpoints();
+	void reset_vel();
+	void reset_gyro();
+	void set_gyro_setpoint(int,float);
 };

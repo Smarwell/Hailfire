@@ -15,12 +15,12 @@ set the baseline thrust to 127/255, or about 50%.
 uint8_t comm_command, comm_arg;
 uint8_t output_buffer[28];
 
-void send_message(uint8_t type, uint8_t data = 0, String message="") { 
+void send_message(uint8_t message, String str="") { 
 	if (debug) {
-		Serial.println(message);
+		Serial.println(str);
 	}
 	else {
-		Serial.write(type << 8 || data);
+		Serial.write(MESSAGE << 8 || message);
 	}
 }
 
@@ -31,23 +31,43 @@ void send_telem() {
 void comm_parse() {
 	switch (comm_command) {
 	case RESET_VEL:
+		drone.reset_vel();
+		break;
 	case RESET_ALL:
+		drone.reset_gyro();
+		drone.reset_vel();
+		break;
 	case COMM_CHECK:
-		send_message(COMM_CHECK, 0, "Communications check");
+		send_message(COMM_CHECK, "Communications check");
 		break;
 	case RESET:
+		break;
 	case POWER_OFF:
+		drone.set_thrust(0);
+		break;
 	case FAST_LAND:
+		drone.set_thrust(60); //~25%
+		break;
 	case SET_MANUAL:
-		drone.set_mode(MODE_MANUAL);
+		drone.set_mode(MANUAL);
 		break;
 	case SET_AUTO:
-		drone.set_mode(MODE_HOLD_POS);
+		drone.set_mode(HOLD_POS);
 		break;
 	case SET_THRUST:
+		drone.set_thrust(comm_arg);
+		break;
 	case SET_YAW:
+		drone.set_gyro_setpoint(0,(float(comm_arg) - 127) / 127.0*M_PI);
+		break;
+	case SET_PITCH:
+		drone.set_gyro_setpoint(1, (float(comm_arg) - 127) / 127.0*M_PI / 2);
+		break;
+	case SET_ROLL:
+		drone.set_gyro_setpoint(1, (float(comm_arg) - 127) / 127.0*M_PI / 2);
+		break;
 	default:
-		send_message(WARN, INVALID_INPUT, "Bad input given");
+		send_message(INVALID_INPUT, "Bad input given");
 		break;
 	}
 }

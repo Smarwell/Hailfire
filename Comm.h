@@ -33,14 +33,15 @@ enum comm {
 	HOLD_POS,
 	WANDER,
 
-	WARN,
+	MESSAGE,
 	TELEM,
-	CHECK,
+  //COMM_CHECK,
 
 	INVALID_INPUT,
 	MPU_INIT_FAILED,
 	MPU_FIFO_OVERFLOW,
-	MPU_CALIBRATED
+	MPU_CALIBRATED,
+	LOW_BATTERY
 };
 
 bool debug = false;
@@ -52,7 +53,7 @@ uint8_t comm_command, comm_arg;
 uint8_t output_buffer[28];
 
 //Sends a message to the computer.
-void send_message(uint8_t type, uint8_t data = 0, String message = "");
+void send_message(uint8_t, String);
 
 //Sends telemetry data. Not implemented.
 void send_telem();
