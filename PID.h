@@ -1,58 +1,59 @@
-#ifndef PID_H
-#define PID_H
+#pragma once 
 
-using namespace std;
 class PID
 {
 private:
-	double error_value;
+	double constantP;
+	double constantI;
+	double constantD;
+	double setPoint;
+	double processVariable;
+	double currentError;
+	double dirivative;
+	double integral;
+	double previousError;
 	double output;
-	double set_point;
-	double process_value;
-	double proportional_gain;
-	double integral_gain;
-	double derivative_gain;
-	double time; //this variable is a place holder for the system variable in arduino
+	int counter;
+	double previousProccessVariables[]; 
 
 public:
-	/*PID(error_value,control_value,propotional_value,integral_value,derivative_value)
+	PID(double p, double i, double d, double sp, double pv, double err, double t)
 	{
-
-	}*/
-	PID()
-	{
-		error_value=0.0;
-		output=0.0;
-		set_point=0.0;
-		process_value=0.0;
-		proportional_gain=0.0;
-		integral_gain=0.0;
-		derivative_gain=0.0;
-		time=0.0;
+		constantP=p;
+		constantI=i;
+		constantD=d;
+		setPoint=sp;
+		processVariable=pv;
+		currentError=err;
+		dirivative=0;
+		integral=0;
+		previousError=0;
+		output=0;
+		counter=1;
+		previousProccessVariables[0]=pv;
 	}
-	double getProportional (){return set_point-process_value;}
-	double getIntegral (){return integral+error_value*time;}
-	double getDerivative (){return error-previousError)/time;}
-	void setoutput(double output){this.output=output;} 
 
-	double pid()
+	void setSetPoint(double point){setPoint=point;}
+	double getSetPoint(){return setPoint;}
+	double* getPreviousProccessVariables(){return previousProccessVariables;}
+	void setProccessVariable(double pv)
 	{
-		//should we onlycalculate integral if our error value massive?
-		double output=0;
-		double previous_error=0;
-		double integral=0;
-		//while(1)
-		//{
-			output=proportional_gain*getProportion()+integral_gain*getIntegral()+derivative_gain*getDerivative();
-			previous_error=error;
-			setoutput(output);
-			return output;
-		//}
+		processVariable=pv;
+		previousProccessVariables[counter%5]=pv;
+		counter++;
 	}
-	
 
 
+	double proc(double time, double processVariable)
+	{
+		previousProccessVariables[counter%5]=processVariable;
+		currentError=setPoint-processVariable;
+		integral+=currentError*time;
+		dirivative=(currentError-previousError)/time;
+		output=(constantP*currentError)+(constantI*integral)+(constantD*dirivative);
+		previousError=currentError;
+		counter++;
+		return output;
+	}
 
-}
-
-#endif
+};
