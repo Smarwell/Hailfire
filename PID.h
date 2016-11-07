@@ -9,7 +9,7 @@ private:
 	double setPoint;
 	double processVariable;
 	double currentError;
-	double dirivative;
+	double derivative;
 	double integral;
 	double previousError;
 	double output;
@@ -25,7 +25,7 @@ public:
 		setPoint=sp;
 		processVariable=pv;
 		currentError=err;
-		dirivative=0;
+		derivative=0;
 		integral=0;
 		previousError=0;
 		output=0;
@@ -49,8 +49,8 @@ public:
 		previousProccessVariables[counter%5]=processVariable;
 		currentError=setPoint-processVariable;
 		integral+=currentError*time;
-		dirivative=(currentError-previousError)/time;
-		output=(constantP*currentError)+(constantI*integral)+(constantD*dirivative);
+		derivative=(currentError-previousError)/time;
+		output=(constantP*currentError)+(constantI*integral)+(constantD*derivative);
 		previousError=currentError;
 		counter++;
 		return output;
