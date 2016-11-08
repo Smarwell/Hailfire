@@ -28,7 +28,7 @@
 #define S_SW 2
 #define S_SE 3
 
-#define min_pulse_width 1000	//microseconds
+#define min_pulse_width 1100	//microseconds
 #define max_pulse_width 2000
 
 class Servo {
