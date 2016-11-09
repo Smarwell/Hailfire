@@ -8,7 +8,11 @@ The timer counts clock cycles, and when it hits the correct number for one motor
 it resets itself, and calls an interrupt that ends that pulse, sets the timer to 
 wait for the *next* motor's number of clock cycle, and then turns on that motor's pin.
 
-
+The old code demands a full 2 milliseconds out of every control loop the drone goes
+through. Considering that the absolute upper bound on the time the control loop takes
+to run is 10 milliseconds, that's a pretty big deal. This code will almost not show
+up in the main loop at all, and will only take about a microsecond once every 1.5
+milliseconds or so.
 
 This code will only run on the Arduino Mega 2560, and it *will* break anything that 
 relies on hardware timer 5 to run, including PWM for pins 44-46 and the builtin 
@@ -49,7 +53,8 @@ OCR5A	- Compare match register, timer 5, channel A - controls for how many cycle
 #include "Arduino.h"
 
 const float min_compare = 1100.f * 16.f;	//1100 microseconds
-const float max_compare = 2000.f * 16.f;	//16 clock cycles per microsecond
+const float max_compare = 2000.f * 16.f;	//2000 microseconds
+											//16 clock cycles per microsecond
 
 uint8_t motor_queue_progress = 0;
 uint16_t motor_compares[];
@@ -92,7 +97,6 @@ public:
 
 };
 
-
 ISR(TIMER5_COMPA_vect) {
 	PORTA &= 0b11110000;
 	//Turn off all four motor pins
@@ -103,6 +107,6 @@ ISR(TIMER5_COMPA_vect) {
 	OCR5A = motor_compares[motor_queue_progress];
 	//set the compare target to the next value in the queue
 
-	PORTA |= 1 << motor_queue_progress;
+	PORTA |= 0b1 << motor_queue_progress;
 	//turn on the corresponding motor
 }
