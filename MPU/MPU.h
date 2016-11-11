@@ -41,7 +41,6 @@ but accelerometer data is pretty noisy.
 */
 class MPU {
 
-	float sample[100];
 	unsigned long int sample_pos = 0;
 	float average;
 	float stddev;
@@ -151,38 +150,6 @@ public:
 		return 0;
 	};
 
-	/*Checks to see if the sensor is ready. It will call poll() once, and add that to a circular array
-	of samples. Every hundred times it's called, it will check to see if the standard deviation of the
-	data is below a threshold. When that happens it increments valid_samples (because sometimes the data
-	will stay stable for a moment without staying stable). When valid_samples hits five, the sensor is
-	considered ready.*/
-	bool get_sensor_ready() {
-		poll();
-		sample[sample_pos % 100] = accel[0];
-		sample_pos++;
-		if (sample_pos < 100) {
-			return false;
-		}
-		if (sample_pos % 100 == 0) {
-			average = 0;
-			for (int i = 0; i < 100; i++) {	//Calculate the average of the samples
-				average += sample[i] / 100;
-			}
-			stddev = 0;
-			for (int i = 0; i < 100; i++) {	//Calculate the standard deviation of the samples
-				stddev += (sample[i] - average)*(sample[i] - average) / 100;
-			}
-			if (stddev < 50) {		//Is the standard deviation below 50?
-				valid_samples++;
-				sample_pos = 0;
-			}
-			return valid_samples == 5;	//only return true if 5 valid sets of samples have been taken
-		}
-		else {
-			return false;
-		}
-	}
-
 	void calibrate() {
 		Serial.println("Calibrating");
 		
@@ -195,14 +162,7 @@ public:
 			gyro_offsets[1] += (ypr[1] / 1000.0);
 			gyro_offsets[2] += (ypr[2] / 1000.0);
 		}
-		/*
-		Serial.println(accel_offsets[0]);
-		Serial.println(accel_offsets[1]);
-		Serial.println(accel_offsets[2]);
-		Serial.println(gyro_offsets[0]);
-		Serial.println(gyro_offsets[1]);
-		Serial.println(gyro_offsets[2]);
-		*/
+		//determined experimentally
 		accel_offsets[0] = 22.56;
 		accel_offsets[1] = -14.82;
 		accel_offsets[2] = -318.353;
@@ -224,14 +184,8 @@ public:
 	float gyro_r() { return ypr[2]; }
 };
 
-/*Just repeatedly calls get_sensor_ready until it returns true. If more than 45 seconds passes
-without the mpu being ready, it times out. It typically takes 20 to 30 seconds for the data
-coming from the MPU to stabilize.*/
 bool wait_for_MPU_ready(MPU& mpu) {
 	unsigned long int start = millis();
-	//while (!mpu.get_sensor_ready()) {
-	//	if (millis() - start > 45000) return false;
-	//}
 	while (millis() - start < 30000) {
 		mpu.poll();
 	}

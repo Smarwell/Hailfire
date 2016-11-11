@@ -13,44 +13,29 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Libraries">
+      <UniqueIdentifier>{730ea52a-0551-4a21-8181-72960f0fd651}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="HailfireBot.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Motors\Servo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MPU\MPU6050.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Comm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Motors\experimental_servo.cpp">
+    <ClCompile Include="Drone.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPU\MPU6050.cpp">
+      <Filter>Libraries</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MPU\helper_3dmath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MPU\MPU6050.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MPU\MPU6050_6Axis_MotionApps20_edited.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Motors\Servo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Comm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="__vm\.HailfireBot.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Drone.h">
@@ -58,6 +43,21 @@
     </ClInclude>
     <ClInclude Include="MPU\MPU.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Motors\Servo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPU\MPU6050_6Axis_MotionApps20_edited.h">
+      <Filter>Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="MPU\MPU6050.h">
+      <Filter>Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="MPU\helper_3dmath.h">
+      <Filter>Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="__vm\.HailfireBot.vsarduino.h">
+      <Filter>Libraries</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -13,18 +13,17 @@ enum modes {
 #include <Arduino.h>
 #include "Motors\Servo.h"
 #include "MPU\MPU.h"
+#include "PID.h"
+#include "Comm.h"
 
 
 class Drone {
 	MPU mpu;
-	int servo_pins[4] = { 2,3,4,5 };
 	Servos servos;
 	int flight_mode;
-	bool ready;
 
 public:
-	Drone(): servos(servo_pins) {};
-	bool is_ready();
+	Drone(): servos() {};
 	bool init();
 	void set_mode(uint8_t mode);
 	void set_thrust(uint8_t arg);
