@@ -27,7 +27,7 @@
     <ClCompile Include="Comm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="experimental_servo.cpp">
+    <ClCompile Include="Motors\experimental_servo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

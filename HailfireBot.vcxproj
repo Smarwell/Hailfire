@@ -83,7 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Comm.cpp" />
-    <ClCompile Include="experimental_servo.cpp" />
+    <ClCompile Include="Motors\experimental_servo.cpp" />
     <ClCompile Include="Motors\Servo.cpp" />
     <ClCompile Include="MPU\MPU6050.cpp" />
   </ItemGroup>
