@@ -13,8 +13,7 @@
 
 bool autonomous_flight = false;
 
-int servo_pins[4] = { 2,3,4,5 };
-Servos servos(servo_pins);
+Servos servos;
 
 MPU mpu = MPU();
 
