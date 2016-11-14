@@ -1,44 +1,7 @@
 
-/*
-Acts as a wrapper for the MPU6050 class
-
-MPU == motion processor unit
-DMP == digital motion processor (special processor built into the MPU)
-FIFO == First in first out (a 1024 byte buffer in the MPU)
-
-To use, simply create an object, call start(), and then call wait_for_MPU_ready().
-Once that finishes (assuming it was successful), call poll() to get current data from
-the MPU. The DMP is set to write its data to the FIFO at 100 Hz. If poll() is called fewer
-than ten milliseconds after the last time poll() was called, there will not be any data
-in the FIFO yet, and it will wait until there is data to retrieve it and return. The
-minimum run time for poll() is about 2.5 milliseconds.
-
-If poll() is not called for long enough, the FIFO can overflow. In this case the FIFO is
-simply reset, though all of the object's data won't be updated until the next time poll() 
-is called.
-
-For typically 20 to 30 seconds after the MPU is started up, the data will drift
-quite a bit. For this reason, the drone should wait for the data to stabilize before trying
-to fly. Once the 'warmup' period has passed, the gyroscope data is in general very reliable,
-though accelerometer data is pretty noisy.
-*/
-
-volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
-void dmpDataReady() {
-	mpuInterrupt = true;
-}
-
-#include "../Comm.h"	//allows for use of error messages
-#include "../Drone.h"
-
-#include "I2Cdev.h"
-#include "MPU6050_6Axis_MotionApps20_edited.h"	//here be dragons
-
-#include "Wire.h"
-
 #include "MPU.h"
 
-/*Tries to initialize the MPU*/
+//Attempts to initialize the mpu
 int MPU::start() {
 	Wire.begin();
 	TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz)
@@ -61,7 +24,6 @@ int MPU::start() {
 		return 1;
 	}
 };
-
 
 
 //Gets all current data from the MPU's DMP. Takes at least 2.5 milliseconds to do its job,
@@ -90,12 +52,14 @@ int MPU::poll() {
 			time_passed = micros() - frame_start;
 			frame_start = micros();
 			fifoCount -= packetSize;
+			send_message(MPU_FIFO_OVERFLOW, "The MPU's FIFO has overflowed and been reset");
 		}
 		mpu.dmpGetQuaternion(&q, fifoBuffer);	//get various vectors
 		mpu.dmpGetGravity(&gravity, &q);
 		mpu.dmpGetAccel(&aa, fifoBuffer);
 		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);	//load the data into more easily used formats
 		mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+		old_accel = accel;
 		accel[0] = aaReal.x;
 		accel[1] = aaReal.y;
 		accel[2] = aaReal.z;
@@ -104,72 +68,49 @@ int MPU::poll() {
 			for (int i = 0; i < 3; i++) {
 				accel[i] -= accel_offsets[i];
 				ypr[i] -= gyro_offsets[i];
-				vel[i] += accel[i] * time_passed;
+				vel[i] += ((accel[i] + old_accel[i]) / 2.0 * time_passed) / 1000000.0;
 			}
 		}
 	}
 	return 0;
 };
 
-
-
-/*Checks to see if the sensor is ready. It will call poll() once, and add that to a circular array
-of samples. Every hundred times it's called, it will check to see if the standard deviation of the
-data is below a threshold. When that happens it increments valid_samples (because sometimes the data
-will stay stable for a moment without staying stable). When valid_samples hits five, the sensor is
-considered ready.*/
-bool MPU::get_sensor_ready() {
-	poll();
-	sample[sample_pos % 100] = accel[0];
-	sample_pos++;
-	if (sample_pos < 100) {
-		return false;
-	}
-	if (sample_pos % 100 == 0) {
-		average = 0;
-		for (int i = 0; i < 100; i++) {	//Calculate the average of the samples
-			average += sample[i] / 100;
+int MPU::calibrate() {
+	for (int i = 0; i < 100; i++) {	//would go to 1000 normally
+		if (poll() == 1) {
+			send_message(MPU_INIT_FAILED, "MPU did not initialize properly");
+			return 1;
 		}
-		stddev = 0;
-		for (int i = 0; i < 100; i++) {	//Calculate the standard deviation of the samples
-			stddev += (sample[i] - average)*(sample[i] - average) / 100;
-		}
-		if (stddev < 50) {		//Is the standard deviation below 50?
-			valid_samples++;
-			sample_pos = 0;
-		}
-		return valid_samples == 5;	//only return true if 5 valid sets of samples have been taken
+		accel_offsets[0] += accel[0] / 1000.0;	//putting this in a for loop breaks it HARD.
+		accel_offsets[1] += accel[1] / 1000.0;	//Undefined behavior for seemingly no reason...
+		accel_offsets[2] += accel[2] / 1000.0;
+		gyro_offsets[0] += (ypr[0] / 1000.0);
+		gyro_offsets[1] += (ypr[1] / 1000.0);
+		gyro_offsets[2] += (ypr[2] / 1000.0);
 	}
-	else {
-		return false;
-	}
-}
+	//determined experimentally
+	accel_offsets[0] = 22.56;
+	accel_offsets[1] = -14.82;
+	accel_offsets[2] = -318.353;
+	gyro_offsets[0] = 20.89;
+	gyro_offsets[1] = 0.77;
+	gyro_offsets[2] = -0.48;
 
-
-void MPU::calibrate() {
-	for (int i = 0; i < 100; i++) {
-		poll();
-		for (int i = 0; i < 3; i++) {
-			gyro_offsets[i] += ypr[i] / 100.0;
-			accel_offsets[i] += accel[i] / 100.0;
-		}
-	}
 	vel[0] = 0;
 	vel[1] = 0;
 	vel[2] = 0;
 	calibrated = true;
+	return 0;
 }
 
-
-
-/*Just repeatedly calls get_sensor_ready until it returns true. If more than 45 seconds passes
-without the mpu being ready, it times out. It typically takes 20 to 30 seconds for the data
-coming from the MPU to stabilize.*/
 bool wait_for_MPU_ready(MPU& mpu) {
 	unsigned long int start = millis();
-	while (!mpu.get_sensor_ready()) {
-		if (millis() - start > 45000) return false;
+	while (millis() - start < 30000) {
+		if (mpu.poll() == 1) {
+			send_message(MPU_INIT_FAILED, "MPU did not initialize properly");
+			return false;
+		}
 	}
-	mpu.calibrate();
+	mpu.calibrate();	//if mpu.poll() worked properly, so will this
 	return true;
 }

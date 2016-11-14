@@ -44,7 +44,7 @@ OCR5A	- Compare match register, timer 5, channel A - controls for how many cycle
 
 const uint16_t min_compare = 17693;	//1100 microseconds * ~16 clock cycles per microsecond
 const uint16_t max_compare = 32058;	//2000 microseconds
-									//The exact value was determined experimentally
+									//The exact values were determined experimentally
 
 uint8_t motor_queue_progress = 0;
 uint16_t motor_compares[];
@@ -93,6 +93,13 @@ public:
 	void modify_power(int motor, float dpower) {
 		motor_compares[motor] += power_to_compare(dpower);
 		check_power_level(motor);
+	}
+
+	void manip_motors(int positive1, int positive2, int negative1, int negative2, float factor) {
+		modify_power(positive1, factor);
+		modify_power(positive2, factor);
+		modify_power(negative1, -factor);
+		modify_power(negative2, -factor);
 	}
 
 };

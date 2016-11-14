@@ -11,30 +11,23 @@
 #include "Motors\Servo.h"
 #include "MPU\MPU.h"
 
-bool autonomous_flight = false;
-
-Servos servos;
-
-MPU mpu = MPU();
+Drone drone;
+int update_counter = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
-	Serial.println("Starting MPU");
-	mpu.start();
-	Serial.println("Waiting for data to stabilize");
-	if (!wait_for_MPU_ready(mpu)) {
-		Serial.println("Startup failed.");
-		while (1) {
-			Serial.print(" 1 ");
-		}
-	}
-	
+	Serial.setTimeout(50);
+	drone.init();
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
-	mpu.poll();
-	autonomous_flight = !autonomous_flight;
-	if (autonomous_flight) Serial.println(mpu.vel[0]);
+	if (drone.is_ready()) {
+		drone.update();
+		update_counter++;
+		if (update_counter % 100 == 0) {
+			drone.periodic_update();
+		}
+	}
 }

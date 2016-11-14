@@ -14,10 +14,10 @@ private:
 	double previousError;
 	double output;
 	int counter;
-	double previousProccessVariables[]; 
+	double previousProccessVariables[5]; 
 
 public:
-	PID(double p, double i, double d, double sp, double pv, double err, double t)
+	PID(double p, double i, double d, double sp = 0.0 , double pv = 0.0, double err = 0.0, double t = 0.0)
 	{
 		constantP=p;
 		constantI=i;

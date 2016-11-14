@@ -5,7 +5,7 @@ void setup() {
   // put your setup code here, to run once:
 pinMode(2,OUTPUT);
 pinMode(13,OUTPUT);
-width=2000;
+width=1100;
 Serial.begin(115200);
 led=false;
 }
