@@ -47,7 +47,7 @@ const uint16_t max_compare = 32058;	//2000 microseconds
 									//The exact values were determined experimentally
 
 uint8_t motor_queue_progress = 0;
-uint16_t motor_compares[];
+uint16_t motor_compares[4];
 
 class Servos {
 
@@ -102,6 +102,16 @@ public:
 		modify_power(negative2, -factor);
 	}
 
+	void set_baseline(float new_thrust) {
+		float average = (motor_compares[0] + \
+			motor_compares[1] + \
+			motor_compares[2] + \
+			motor_compares[3]) / 4;
+		modify_power(0, new_thrust - average);
+		modify_power(1, new_thrust - average);
+		modify_power(2, new_thrust - average);
+		modify_power(3, new_thrust - average);
+	}
 };
 
 //called whenever one motor's pulse needs to be turned off, and the next one

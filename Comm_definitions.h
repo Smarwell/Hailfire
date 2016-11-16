@@ -1,19 +1,10 @@
+#pragma once
 
-#include "Comm.h"
 #include "Drone.h"
 
-Drone drone;
+extern Drone drone;
 
-/*
-Communications between the drone and computer follow a simple format.
-Each message is normally two bytes, with the first being a identifier
-for what kind of command or message is being sent, and the second byte
-is the content of the message. For example, (5,127) is a command to
-set the baseline thrust to 127/255, or about 50%.
-*/
-
-
-void send_message(uint8_t message, String str="") { 
+void send_message(uint8_t message, String str = "") {
 	if (debug) {
 		Serial.println(str);
 	}
@@ -76,5 +67,3 @@ void check_for_message() {
 		comm_parse();
 	}
 }
-
-

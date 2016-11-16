@@ -9,6 +9,7 @@ set the baseline thrust to ~50% (127/255).
 */
 
 #include <Arduino.h>
+#include "Drone.h"
 
 enum comm {
 	RESET_VEL,

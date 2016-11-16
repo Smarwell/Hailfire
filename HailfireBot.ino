@@ -5,11 +5,10 @@
 */
 
 #include "Drone.h"
-#include <Arduino.h>
+#include "Drone_definitions.h"
+#include "Comm_definitions.h"
 #include <Wire.h>
 #include <I2Cdev.h>
-#include "Motors\Servo.h"
-#include "MPU\MPU.h"
 
 Drone drone;
 int update_counter = 0;
@@ -26,8 +25,9 @@ void loop() {
 	if (drone.is_ready()) {
 		drone.update();
 		update_counter++;
-		if (update_counter % 100 == 0) {
+		if (update_counter == 100) {
 			drone.periodic_update();
+			update_counter = 0;
 		}
 	}
 }

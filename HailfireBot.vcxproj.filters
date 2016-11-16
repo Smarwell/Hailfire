@@ -21,17 +21,8 @@
     <None Include="HailfireBot.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Comm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Drone.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MPU\MPU6050.cpp">
       <Filter>Libraries</Filter>
-    </ClCompile>
-    <ClCompile Include="MPU\MPU.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,11 +47,17 @@
     <ClInclude Include="MPU\MPU6050.h">
       <Filter>Libraries</Filter>
     </ClInclude>
+    <ClInclude Include="__vm\.HailfireBot.vsarduino.h">
+      <Filter>Libraries</Filter>
+    </ClInclude>
     <ClInclude Include="MPU\helper_3dmath.h">
       <Filter>Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="__vm\.HailfireBot.vsarduino.h">
-      <Filter>Libraries</Filter>
+    <ClInclude Include="Drone_definitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Comm_definitions.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

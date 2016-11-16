@@ -15,9 +15,10 @@ private:
 	double output;
 	int counter;
 	double previousProccessVariables[5]; 
+	long unsigned int time;
 
 public:
-	PID(double p, double i, double d, double sp = 0.0 , double pv = 0.0, double err = 0.0, double t = 0.0)
+	PID(double p, double i, double d, double sp = 0.0 , double pv = 0.0, double err = 0.0)
 	{
 		constantP=p;
 		constantI=i;
@@ -31,6 +32,7 @@ public:
 		output=0;
 		counter=1;
 		previousProccessVariables[0]=pv;
+		time = micros();
 	}
 
 	void setSetPoint(double point){setPoint=point;}
@@ -44,12 +46,13 @@ public:
 	}
 
 
-	double proc(double time, double processVariable)
+	double proc(double processVariable)
 	{
+		float frame = (micros() - time) / 1000;
 		previousProccessVariables[counter%5]=processVariable;
 		currentError=setPoint-processVariable;
-		integral+=currentError*time;
-		derivative=(currentError-previousError)/time;
+		integral+=currentError*frame;
+		derivative=(currentError-previousError)/frame;
 		output=(constantP*currentError)+(constantI*integral)+(constantD*derivative);
 		previousError=currentError;
 		counter++;
