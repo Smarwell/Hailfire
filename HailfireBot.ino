@@ -16,7 +16,9 @@ int update_counter = 0;
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
+	Serial1.begin(9600);
 	Serial.setTimeout(50);
+	Serial1.setTimeout(50);
 	drone.init();
 }
 

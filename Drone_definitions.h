@@ -4,11 +4,10 @@
 
 void Drone::init() {
 	servos.start();
-	mpu.start();
-	ready = wait_for_MPU_ready(mpu);
+	//mpu.start();
+	//ready = wait_for_MPU_ready(mpu);
 
 	ready = ready && comm_check();
-	//put a motor startup sequence in here
 
 	flight_mode = LANDED;
 
@@ -25,10 +24,10 @@ void Drone::set_thrust(uint8_t arg) {
 
 void Drone::update() {
 	check_for_message();
-	mpu.poll();
-	servos.manip_motors(0, 3, 1, 2, yaw_controller.proc(mpu.gyro_y()));
-	servos.manip_motors(0, 1, 2, 3, pitch_controller.proc(mpu.gyro_p()));
-	servos.manip_motors(1, 3, 0, 2, roll_controller.proc(mpu.gyro_r()));
+	//mpu.poll();
+	//servos.manip_motors(0, 3, 1, 2, yaw_controller.proc(mpu.gyro_y()));
+	//servos.manip_motors(0, 1, 2, 3, pitch_controller.proc(mpu.gyro_p()));
+	//servos.manip_motors(1, 3, 0, 2, roll_controller.proc(mpu.gyro_r()));
 }
 
 void Drone::periodic_update() {

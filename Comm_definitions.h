@@ -9,7 +9,7 @@ void send_message(uint8_t message, String str = "") {
 		Serial.println(str);
 	}
 	else {
-		Serial.write(MESSAGE << 8 || message);
+		Serial1.write(MESSAGE << 8 || message);
 	}
 }
 
@@ -54,16 +54,16 @@ bool comm_check() {
 	if (debug) return true;
 	send_message(COMM_CHECK);
 	int time = millis();
-	while (Serial.available() == 0 && millis() - time < 500) {
+	while (Serial1.available() == 0 && millis() - time < 500) {
 		delay(1);
 	}
-	return (millis() - time < 500 && Serial.read() == COMM_CHECK);
+	return (millis() - time < 500 && Serial1.read() == COMM_CHECK);
 }
 
 void check_for_message() {
-	if (Serial.available() > 1) {
-		comm_command = Serial.read();
-		comm_arg = Serial.read();
+	if (Serial1.available()>1) {
+		comm_command = Serial1.read();
+		comm_arg = Serial1.read();
 		comm_parse();
 	}
 }
