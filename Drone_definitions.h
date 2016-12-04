@@ -7,7 +7,7 @@ void Drone::init() {
 	//mpu.start();
 	//ready = wait_for_MPU_ready(mpu);
 
-	ready = ready && comm_check();
+	//ready = ready && comm_check();
 
 	flight_mode = LANDED;
 

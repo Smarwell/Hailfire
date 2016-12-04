@@ -42,6 +42,7 @@ void comm_parse() {
 		drone.set_mode(HOLD_POS);
 		break;
 	case SET_THRUST:
+		Serial.println(comm_arg);
 		drone.set_thrust(comm_arg);
 		break;
 	default:
