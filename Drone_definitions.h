@@ -4,6 +4,7 @@
 
 void Drone::init() {
 	servos.start();
+	ready = true;
 	//mpu.start();
 	//ready = wait_for_MPU_ready(mpu);
 

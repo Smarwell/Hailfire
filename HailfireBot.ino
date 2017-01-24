@@ -4,6 +4,8 @@
  Author:	Jacob Sacco
 */
 
+bool led;
+
 #include "Drone.h"
 #include "Drone_definitions.h"
 #include "Comm_definitions.h"
@@ -19,6 +21,7 @@ void setup() {
 	Serial1.begin(9600);
 	Serial.setTimeout(50);
 	Serial1.setTimeout(50);
+	pinMode(2, OUTPUT);
 	drone.init();
 }
 
@@ -32,4 +35,5 @@ void loop() {
 			update_counter = 0;
 		}
 	}
+	delay(10);
 }

@@ -4,7 +4,7 @@ bool led;
 void setup() {
   // put your setup code here, to run once:
 pinMode(2,OUTPUT);
-pinMode(22,OUTPUT);
+pinMode(3,OUTPUT);
 width=1000;
 Serial.begin(115200);
 led=false;
@@ -16,9 +16,9 @@ if(Serial.available()){
   led=!led;
   digitalWrite(2,led);
 }
-digitalWrite(22,HIGH);
+digitalWrite(3,HIGH);
 delayMicroseconds(width);
-digitalWrite(22,LOW);
+digitalWrite(3,LOW);
 delay(10);
 
 }

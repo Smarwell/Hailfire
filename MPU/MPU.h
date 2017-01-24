@@ -74,6 +74,17 @@ public:
 
 	/*Tries to initialize the MPU*/
 	int start() {
+
+
+
+
+
+		return 0;	//REMEMBER TO REMOVE THIS <--------------------------------------------------------
+
+
+
+
+
 		Wire.begin();
 		TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz)
 		mpu.initialize();

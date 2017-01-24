@@ -63,6 +63,9 @@ bool comm_check() {
 
 void check_for_message() {
 	if (Serial1.available()>1) {
+		led = !led;
+		digitalWrite(2, led);
+		//drone.set_thrust((uint8_t)Serial1.parseInt());
 		comm_command = Serial1.read();
 		comm_arg = Serial1.read();
 		comm_parse();
