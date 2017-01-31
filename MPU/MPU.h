@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "../Comm.h"	//allows for use of error messages
 //#include "../Drone.h"
 
@@ -70,20 +69,12 @@ public:
 	float ypr[3];
 	float vel[3];
 
+	float telemetry[9];
+
 	MPU() {};
 
 	/*Tries to initialize the MPU*/
 	int start() {
-
-
-
-
-
-		return 0;	//REMEMBER TO REMOVE THIS <--------------------------------------------------------
-
-
-
-
 
 		Wire.begin();
 		TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz)
@@ -182,6 +173,13 @@ public:
 		vel[2] = 0;
 		calibrated = true;
 		return 0;
+	}
+
+	float* get_telemetry() {
+		memcpy(telemetry, ypr, 3);
+		memcpy(telemetry + 3, accel, 3);
+		memcpy(telemetry + 6, vel, 3);
+		return telemetry;
 	}
 
 	float accel_x() { return accel[0]; }

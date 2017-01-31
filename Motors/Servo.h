@@ -43,7 +43,7 @@ OCR5A	- Compare match register, timer 5, channel A - controls for how many cycle
 #include "Arduino.h"
 
 const uint16_t min_compare = 17693;	//1100 microseconds * ~16 clock cycles per microsecond
-const uint16_t max_compare = 32058;	//2000 microseconds
+const uint16_t max_compare = 30000;	//32058 is 2000 microseconds
 									//The exact values were determined experimentally
 
 uint8_t motor_queue_progress = 0;
@@ -103,14 +103,21 @@ public:
 	}
 
 	void set_baseline(float new_thrust) {
+		/*
 		float average = (motor_compares[0] + \
 			motor_compares[1] + \
 			motor_compares[2] + \
-			motor_compares[3]) / 4;
+			motor_compares[3]) / 4.0;
 		modify_power(0, new_thrust - average);
 		modify_power(1, new_thrust - average);
 		modify_power(2, new_thrust - average);
-		modify_power(3, new_thrust - average);
+		modify_power(3, new_thrust - average);*/
+		
+		set_power(0, new_thrust);
+		set_power(1, new_thrust);
+		set_power(2, new_thrust);
+		set_power(3, new_thrust);
+
 	}
 };
 

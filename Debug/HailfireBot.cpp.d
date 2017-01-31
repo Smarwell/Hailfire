@@ -17,7 +17,7 @@ C:\Users\Jacob\AppData\Local\Temp\VMicroBuilds\HailfireBot\mega_atmega2560\Hailf
  C:\Users\Jacob\AppData\Local\Temp\VMicroBuilds\HailfireBot\mega_atmega2560\MPU\MPU.h \
  C:\Users\Jacob\AppData\Local\Temp\VMicroBuilds\HailfireBot\mega_atmega2560\MPU\../Comm.h \
  C:\Program\ Files\ (x86)\Arduino\libraries\I2Cdev/I2Cdev.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\libraries\Wire/Wire.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\libraries\Wire\src/Wire.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Stream.h \
  C:\Users\Jacob\AppData\Local\Temp\VMicroBuilds\HailfireBot\mega_atmega2560\MPU\MPU6050_6Axis_MotionApps20_edited.h \
  C:\Users\Jacob\AppData\Local\Temp\VMicroBuilds\HailfireBot\mega_atmega2560\MPU\helper_3dmath.h \

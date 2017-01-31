@@ -19,15 +19,21 @@ int update_counter = 0;
 void setup() {
 	Serial.begin(115200);
 	Serial1.begin(9600);
-	Serial.setTimeout(50);
-	Serial1.setTimeout(50);
-	pinMode(2, OUTPUT);
+	Serial.setTimeout(5);
+	Serial1.setTimeout(5);
+	pinMode(3, OUTPUT);
 	drone.init();
+	while (0) {
+		send_message(0b11111111, "");
+		delay(10);
+	}
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
+	send_message(0b11111111, "");
 	if (drone.is_ready()) {
+		send_message(0b00001111, "");
 		drone.update();
 		update_counter++;
 		if (update_counter == 100) {
