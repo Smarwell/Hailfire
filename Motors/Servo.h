@@ -33,7 +33,7 @@ Registers used in this code:
 DDRA	- Sets the mode for the pins of Port A - 0 is read, 1 is write
 PORTA	- Sets the output for the pins of Port A
 
-TCCR5A	- Timer/Counter configuration register B, timer 5 - controls the mode the timer runs in.
+TCCR5A	- Timer/Counter configuration register A, timer 5 - controls the mode the timer runs in.
 TCCR5B	- Timer/Counter configuration register B, timer 5 - controls the mode the timer runs in.
 TIMSK5	- Timer Interrupt Mask, timer 5 - controls what triggers an interrupt
 OCR5A	- Compare match register, timer 5, channel A - controls for how many cycles the timer runs 
@@ -43,13 +43,16 @@ OCR5A	- Compare match register, timer 5, channel A - controls for how many cycle
 #include "Arduino.h"
 
 const uint16_t min_compare = 17693;	//1100 microseconds * ~16 clock cycles per microsecond
-const uint16_t max_compare = 30000;	//32058 is 2000 microseconds
+const uint16_t max_compare = 32058;	//2000 microseconds
 									//The exact values were determined experimentally
 
 uint8_t motor_queue_progress = 0;
 uint16_t motor_compares[4];
 
 class Servos {
+
+	float power_diffs[4];
+	float baseline;
 
 	//Converts a power level from 0 to 1 to a number of clock cycles
 	uint16_t power_to_compare(float power) {
@@ -58,7 +61,7 @@ class Servos {
 
 	//Makes sure the motor power never goes above 100% or below 0%
 	void check_power_level(int motor) {
-		if (motor_compares[motor] > max_compare) motor_compares[motor] = max_compare;
+		if (motor_compares[motor] > max_compare*0.8) motor_compares[motor] = max_compare*0.8;
 		if (motor_compares[motor] < min_compare) motor_compares[motor] = min_compare;
 	}
 
@@ -78,46 +81,56 @@ public:
 		TIMSK5 |= (1 << OCIE5A);
 		//tell it to trigger the interrupt on compare match
 
-		set_power(0, 0);
-		set_power(1, 0);
-		set_power(2, 0);
-		set_power(3, 0);
+		baseline = 0.0;
+		reset_diffs();
 	}
 
+	void reset_diffs() {
+		set_power_diff(0, 0);
+		set_power_diff(1, 0);
+		set_power_diff(2, 0);
+		set_power_diff(3, 0);
+	}
 
-	void set_power(int motor, float power) {
-		motor_compares[motor] = power_to_compare(power) + min_compare;
+	void set_power_diff(int motor, float power) {
+		power_diffs[motor] = power;
+		update_power(motor);
+	}
+
+	void modify_power_diff(int motor, float dpower) {
+		power_diffs[motor] += dpower;
+		update_power(motor);
+	}
+
+	void update_power(int motor) {
+		motor_compares[motor] = power_to_compare(power_diffs[motor] + baseline) + min_compare;
 		check_power_level(motor);
 	}
 
-	void modify_power(int motor, float dpower) {
-		motor_compares[motor] += power_to_compare(dpower);
-		check_power_level(motor);
+	void update_powers() {
+		for (int motor = 0; motor < 4; motor++) {
+			update_power(motor);
+		}
+	}
+
+	float get_power(int motor) {
+		return power_diffs[motor]+baseline;
+	}
+
+	float get_baseline() {
+		return baseline;
 	}
 
 	void manip_motors(int positive1, int positive2, int negative1, int negative2, float factor) {
-		modify_power(positive1, factor);
-		modify_power(positive2, factor);
-		modify_power(negative1, -factor);
-		modify_power(negative2, -factor);
+		modify_power_diff(positive1, factor);
+		modify_power_diff(positive2, factor);
+		modify_power_diff(negative1, -factor);
+		modify_power_diff(negative2, -factor);
 	}
 
 	void set_baseline(float new_thrust) {
-		/*
-		float average = (motor_compares[0] + \
-			motor_compares[1] + \
-			motor_compares[2] + \
-			motor_compares[3]) / 4.0;
-		modify_power(0, new_thrust - average);
-		modify_power(1, new_thrust - average);
-		modify_power(2, new_thrust - average);
-		modify_power(3, new_thrust - average);*/
-		
-		set_power(0, new_thrust);
-		set_power(1, new_thrust);
-		set_power(2, new_thrust);
-		set_power(3, new_thrust);
-
+		baseline = new_thrust;
+		update_powers();
 	}
 };
 

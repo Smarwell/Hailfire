@@ -23,23 +23,20 @@ void setup() {
 	Serial1.setTimeout(5);
 	pinMode(3, OUTPUT);
 	drone.init();
-	while (0) {
-		send_message(0b11111111, "");
-		delay(10);
-	}
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
-	send_message(0b11111111, "");
 	if (drone.is_ready()) {
-		send_message(0b00001111, "");
 		drone.update();
 		update_counter++;
-		if (update_counter == 100) {
+		if (update_counter == 10) {
 			drone.periodic_update();
 			update_counter = 0;
 		}
 	}
-	delay(10);
+	else {
+		send_message(0b11111111, "few");
+	}
+	delay(5);
 }

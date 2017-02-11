@@ -13,13 +13,20 @@ running=True
 
 key = reg.OpenKey(reg.HKEY_LOCAL_MACHINE, 'HARDWARE\\DEVICEMAP\\SERIALCOMM')
 try:
+    choice=None
     for i in count():
         device, port = reg.EnumValue(key, i)[:2]
         print("Device name \"%s\" found at %s" % (device, port))
+        if 'BthModem2' in device:
+            print("choosing %s"%device)
+            choice=port
 except: pass
 
 try:
-    ser=serial.Serial(input(),9600,timeout=0.025)
+    if choice==None:
+        ser=serial.Serial(input(),9600,timeout=0.025)
+    else:
+        ser=serial.Serial(choice,9600,timeout=0.025)
 except serial.serialutil.SerialException as e:
     print(str(e))
     running=False
@@ -32,6 +39,7 @@ shift=False
 ctrl=False
 
 changed=True
+count=0
 
 while running:
     for event in pygame.event.get():
@@ -64,10 +72,15 @@ while running:
         screen.fill((0,0,0))
         screen.blit(font.render(str(thrust),True,(255,255,255)),(0,0))
         changed=False
+    count+=1
     #if(ser.in_waiting):
-    print(ser.read(2))
+    out=ser.readline()
+    if out!=b'':
+        print(out)
+    if not count%100:
+        ser.flushInput()
     pygame.display.update()
-    clock.tick(20)
+    #clock.tick(40)
 try:
     ser.close()
 except:

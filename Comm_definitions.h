@@ -52,7 +52,7 @@ void comm_parse() {
 }
 
 bool comm_check() {
-	if (debug) return true;
+	return true;
 	send_message(COMM_CHECK);
 	int time = millis();
 	while (Serial1.available() == 0 && millis() - time < 500) {
