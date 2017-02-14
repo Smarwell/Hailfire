@@ -46,6 +46,8 @@ const uint16_t min_compare = 17693;	//1100 microseconds * ~16 clock cycles per m
 const uint16_t max_compare = 32058;	//2000 microseconds
 									//The exact values were determined experimentally
 
+const float max_diff = 0.20;
+
 uint8_t motor_queue_progress = 0;
 uint16_t motor_compares[4];
 
@@ -61,7 +63,7 @@ class Servos {
 
 	//Makes sure the motor power never goes above 100% or below 0%
 	void check_power_level(int motor) {
-		if (motor_compares[motor] > max_compare*0.8) motor_compares[motor] = max_compare*0.8;
+		if (motor_compares[motor] > max_compare*.8) motor_compares[motor] = max_compare*.8;
 		if (motor_compares[motor] < min_compare) motor_compares[motor] = min_compare;
 	}
 
@@ -93,12 +95,14 @@ public:
 	}
 
 	void set_power_diff(int motor, float power) {
+		if (power > max_diff) power = max_diff;
 		power_diffs[motor] = power;
 		update_power(motor);
 	}
 
 	void modify_power_diff(int motor, float dpower) {
 		power_diffs[motor] += dpower;
+		if (power_diffs[motor] > max_diff) power_diffs[motor] = max_diff;
 		update_power(motor);
 	}
 

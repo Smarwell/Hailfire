@@ -1,7 +1,7 @@
 #pragma once
 
-const float YAW_P = 0.25;
-const float YAW_I = 0.05;
+const float YAW_P = 0;
+const float YAW_I = 0;
 const float YAW_D = 0;
 
 const float PITCH_P = 0.75;
@@ -29,8 +29,8 @@ enum modes {
 };
 
 class Drone {
-	MPU mpu;
 	Servos servos;
+	MPU mpu;
 	int flight_mode;
 	bool ready;
 
@@ -38,21 +38,26 @@ class Drone {
 	PID pitch_pid;
 	PID roll_pid;
 
+	bool pid_enabled;
+
 	float res; //For debugging
 
 public:
+
 	Drone() :
 		servos(),
 		mpu(),
 		yaw_pid(YAW_P, YAW_I, YAW_D),
 		pitch_pid(PITCH_P, PITCH_I, PITCH_D),
-		roll_pid(ROLL_P, ROLL_I, ROLL_D) {};
+		roll_pid(ROLL_P, ROLL_I, ROLL_D),
+		pid_enabled(true){};
 	void init();
 	void set_mode(uint8_t mode);
 	void set_thrust(uint8_t arg);
 	void update();
 	void periodic_update();
-	void reset_gyro_controllers();
+	void reset_pid_controllers();
 	void reset_gyro();
 	bool is_ready() { return ready; }
+	void kill_pid_controllers();
 };

@@ -6,7 +6,7 @@ extern Drone drone;
 
 void send_message(uint8_t message, String str = "") {
 	if (debug) {
-		Serial.println(str);
+		Serial1.println(str);
 	}
 	else {
 		Serial1.write(MESSAGE << 8 || message);
@@ -65,7 +65,9 @@ void check_for_message() {
 	if (Serial1.available()>=1) {
 		led = !led;
 		digitalWrite(3, led);
-		drone.set_thrust((uint8_t)Serial1.parseInt());
+		int val = Serial1.parseInt();
+		drone.set_thrust((uint8_t)val);
+		if (val == 256) drone.kill_pid_controllers();
 		//comm_command = Serial1.read();
 		//comm_arg = Serial1.read();
 		comm_parse();

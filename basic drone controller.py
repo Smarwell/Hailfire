@@ -4,6 +4,8 @@ import pygame
 import winreg as reg
 from itertools import count
 
+from time import sleep
+
 pygame.init()
 clock=pygame.time.Clock()
 
@@ -53,6 +55,9 @@ while running:
                 changed=True
             elif event.key==pygame.K_z:
                 thrust=255
+                changed=True
+            elif event.key==pygame.K_c:
+                thrust=256
                 changed=True
         elif event.type==pygame.KEYUP:
             if event.key==pygame.K_LSHIFT:
