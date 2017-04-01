@@ -37,7 +37,7 @@ void loop() {
 	}
 	else {
 		send_message(0b11111111, "Drone not ready");
-		delay(5000);
+		delay(20000);
 	}
 	//delay(5);
 }

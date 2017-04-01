@@ -5,12 +5,12 @@
 extern Drone drone;
 
 void send_message(uint8_t message, String str = "") {
-	if (debug) {
+	//if (debug) {
 		Serial1.println(str);
-	}
+	/*}
 	else {
 		Serial1.write(MESSAGE << 8 || message);
-	}
+	}*/
 }
 
 void send_telem() {
@@ -68,6 +68,7 @@ void check_for_message() {
 		int val = Serial1.parseInt();
 		drone.set_thrust((uint8_t)val);
 		if (val == 256) drone.kill_pid_controllers();
+		if (val == 257) drone.reenable_pid_controllers();
 		//comm_command = Serial1.read();
 		//comm_arg = Serial1.read();
 		comm_parse();

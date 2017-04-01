@@ -4,9 +4,9 @@ const float YAW_P = 0;
 const float YAW_I = 0;
 const float YAW_D = 0;
 
-const float PITCH_P = 0.75;
-const float PITCH_I = 0.05;
-const float PITCH_D = 1.0;
+const float PITCH_P = .75;
+const float PITCH_I = 0;
+const float PITCH_D = 5000;
 
 const float ROLL_P = PITCH_P;
 const float ROLL_I = PITCH_I;
@@ -60,4 +60,5 @@ public:
 	void reset_gyro();
 	bool is_ready() { return ready; }
 	void kill_pid_controllers();
+	void reenable_pid_controllers();
 };

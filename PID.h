@@ -88,7 +88,8 @@ public:
 		dgain = d;
 		setpoint = 0.0;
 		error = 0.0;
-		last_update = millis();
+		past_error = 0.0;
+		last_update = micros();
 	}
 
 	void set_setpoint(float new_setpoint) {
@@ -98,18 +99,19 @@ public:
 	void reset() {
 		integ_error = 0.0;
 		error = 0.0;
-		last_update = millis();
+		past_error = 0.0;
+		last_update = micros();
 	}
 
 	float calc(float current_val) {
 		val = current_val;
-		past_error = error;
 		error = setpoint - current_val;
-		frame = (millis() - last_update);
-		last_update = millis();
+		frame = (micros() - last_update);
+		last_update = micros();
 		integ_error = integ_error + error*frame / 1000.0;
 		der_error = (error - past_error) / frame;
 		res = pgain*error + igain*integ_error + dgain*der_error;
+		past_error = error;
 		return res;
 	}
 };

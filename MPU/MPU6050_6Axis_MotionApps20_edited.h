@@ -104,10 +104,10 @@ THE SOFTWARE.
 
 //#define DEBUG
 #ifdef DEBUG
-    #define DEBUG_PRINT(x) Serial.print(x)
-    #define DEBUG_PRINTF(x, y) Serial.print(x, y)
-    #define DEBUG_PRINTLN(x) Serial.println(x)
-    #define DEBUG_PRINTLNF(x, y) Serial.println(x, y)
+    #define DEBUG_PRINT(x) Serial1.print(x)
+    #define DEBUG_PRINTF(x, y) Serial1.print(x, y)
+    #define DEBUG_PRINTLN(x) Serial1.println(x)
+    #define DEBUG_PRINTLNF(x, y) Serial1.println(x, y)
 #else
     #define DEBUG_PRINT(x)
     #define DEBUG_PRINTF(x, y)
@@ -364,11 +364,11 @@ uint8_t MPU6050::dmpInitialize() {
     int8_t ygOffsetTC = getYGyroOffsetTC();
     int8_t zgOffsetTC = getZGyroOffsetTC();
     DEBUG_PRINT(F("X gyro offset = "));
-    DEBUG_PRINTLN(xgOffset);
+    DEBUG_PRINTLN(xgOffsetTC);
     DEBUG_PRINT(F("Y gyro offset = "));
-    DEBUG_PRINTLN(ygOffset);
+    DEBUG_PRINTLN(ygOffsetTC);
     DEBUG_PRINT(F("Z gyro offset = "));
-    DEBUG_PRINTLN(zgOffset);
+    DEBUG_PRINTLN(zgOffsetTC);
 
     // setup weird slave stuff (?)
     DEBUG_PRINTLN(F("Setting slave 0 address to 0x7F..."));

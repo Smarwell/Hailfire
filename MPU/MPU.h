@@ -77,7 +77,7 @@ public:
 	MPU() {};
 
 	/*Tries to initialize the MPU*/
-	int start() {
+	bool start() {
 
 		Wire.begin();
 		TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz)
@@ -94,10 +94,12 @@ public:
 
 			dmpReady = true;
 			packetSize = mpu.dmpGetFIFOPacketSize();
-			return 0;
+			Serial1.println("MPU started up successfully");
+			return true;
 		}
 		else {
-			return 1;
+			Serial1.println("MPU failed to start up");
+			return false;
 		}
 	};
 
@@ -174,6 +176,7 @@ public:
 		calibrated = true;
 		poll();
 		return 0;
+		Serial1.println("MPU calibrated");
 	}
 
 	float* get_telemetry() {
@@ -192,6 +195,7 @@ public:
 };
 
 bool wait_for_MPU_ready(MPU& mpu) {
+	Serial1.println("Waiting for gyroscope measurements to stabilize...");
 	unsigned long int start = millis();
 	while (millis() - start < 30000) {
 		if (mpu.poll() == 1) {

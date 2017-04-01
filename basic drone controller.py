@@ -34,7 +34,7 @@ except serial.serialutil.SerialException as e:
     running=False
     input()
 
-screen=pygame.display.set_mode((100,100))
+screen=pygame.display.set_mode((200,100))
 font=pygame.font.Font(None,40)
 
 shift=False
@@ -59,6 +59,9 @@ while running:
             elif event.key==pygame.K_c:
                 thrust=256
                 changed=True
+            elif event.key==pygame.K_v:
+                thrust=257
+                changed=True
         elif event.type==pygame.KEYUP:
             if event.key==pygame.K_LSHIFT:
                 shift=False
@@ -77,15 +80,16 @@ while running:
         screen.fill((0,0,0))
         screen.blit(font.render(str(thrust),True,(255,255,255)),(0,0))
         changed=False
+        if thrust > 255:
+            thrust=0
     count+=1
-    #if(ser.in_waiting):
     out=ser.readline()
-    if out!=b'':
-        print(out)
-    if not count%100:
-        ser.flushInput()
+    if b'' != out:
+        print(out.decode('ascii'),end="")
+    #if not count%10:
+        #ser.flushInput()
     pygame.display.update()
-    #clock.tick(40)
+    #clock.tick(25)
 try:
     ser.close()
 except:
