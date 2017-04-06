@@ -1,12 +1,12 @@
 #pragma once
 
-const float YAW_P = 0;
+const float YAW_P = 0.1;
 const float YAW_I = 0;
 const float YAW_D = 0;
 
-const float PITCH_P = .75;
+const float PITCH_P = 0.10;// .10;
 const float PITCH_I = 0;
-const float PITCH_D = 5000;
+const float PITCH_D = 2000;// 2000;
 
 const float ROLL_P = PITCH_P;
 const float ROLL_I = PITCH_I;

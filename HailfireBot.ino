@@ -4,6 +4,8 @@
  Author:	Jacob Sacco
 */
 
+#pragma GCC optimize ("O2")
+
 bool led;
 
 #include "Drone.h"

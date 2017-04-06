@@ -35,14 +35,18 @@ void Drone::set_thrust(uint8_t arg) {
 
 void Drone::update() {
 	check_for_message();
+	unsigned long start;
+	unsigned long end;
+	delay(10);
+	start = micros();
+	mpu.poll();
+	end = micros();
 	if (pid_enabled) {
-		mpu.poll();
 		servos.reset_diffs();
 		res = yaw_pid.calc(mpu.gyro_y());
 		servos.manip_motors(0, 3, 1, 2, res);
 		servos.manip_motors(2, 3, 0, 1, pitch_pid.calc(mpu.gyro_p()));
 		servos.manip_motors(1, 3, 0, 2, roll_pid.calc(mpu.gyro_r()));
-		//if(roll_pid.past_error_place%3==0) servos.report();
 	}
 }
 
@@ -77,6 +81,7 @@ void Drone::kill_pid_controllers() {
 void Drone::reenable_pid_controllers() {
 	pid_enabled = true;
 	set_thrust(0);
+	mpu.reset();
 	servos.reset_diffs();
 	reset_pid_controllers();
 	Serial1.println("PID controllers reenabled");

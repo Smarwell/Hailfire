@@ -74,10 +74,12 @@ public:
 	float setpoint;
 	float error;
 	float past_error;
+	float past_slopes[5];
+	int slope;
 	float integ_error; //The time integral of the error
 	float der_error; //The time derivative of the error
 	float val;	//The most recent value plugged in
-	float res;	//The most recent result
+	float result;	//The most recent result
 
 	unsigned long last_update; //holds the time of the last update
 	unsigned int frame; //holds the time since the last update
@@ -89,6 +91,10 @@ public:
 		setpoint = 0.0;
 		error = 0.0;
 		past_error = 0.0;
+		slope = 0;
+		for (int i = 0; i < 5; i++) {
+			past_slopes[i] = 0.0;
+		}
 		last_update = micros();
 	}
 
@@ -100,7 +106,26 @@ public:
 		integ_error = 0.0;
 		error = 0.0;
 		past_error = 0.0;
+		slope = 0;
+		for (int i = 0; i < 5; i++) {
+			past_slopes[i] = 0.0;
+		}
 		last_update = micros();
+	}
+
+	inline float integral_error() {
+		integ_error = integ_error + error*frame / 1000.0;
+		return integ_error;
+	}
+
+	inline float derivative_error() {
+		past_slopes[slope % 5] = (error - past_error) / frame;
+		slope++;
+		der_error = 0;
+		for (int i = 0; i < 5; i++) {
+			der_error = der_error + past_slopes[i] / 5.0;
+		}
+		return der_error;
 	}
 
 	float calc(float current_val) {
@@ -108,10 +133,12 @@ public:
 		error = setpoint - current_val;
 		frame = (micros() - last_update);
 		last_update = micros();
-		integ_error = integ_error + error*frame / 1000.0;
-		der_error = (error - past_error) / frame;
-		res = pgain*error + igain*integ_error + dgain*der_error;
+		result = pgain*error + igain*integral_error() + dgain*derivative_error();
 		past_error = error;
-		return res;
+		return result;
+	}
+
+	void report() {
+		Serial1.println("\n\n\n" + String(setpoint) + "\t" + String(val) + "\t" + String(error));
 	}
 };

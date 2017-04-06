@@ -46,8 +46,8 @@ class MPU {
 
 	bool calibrated = false;
 
-	unsigned long int frame_start;
-	unsigned int time_passed;
+	unsigned long int start_t;
+	unsigned long int end_t;
 
 	MPU6050 mpu;
 
@@ -122,12 +122,15 @@ public:
 		}
 		else if (mpuIntStatus & 0x02 || true) {		//data ready
 			
-			while (fifoCount >= packetSize) {	//If multiple packets have been written to the FIFO,
+			/*while (fifoCount >= packetSize) {	//If multiple packets have been written to the FIFO,
 				mpu.getFIFOBytes(fifoBuffer, packetSize);	//Read packets until the most recent one is reached
 				time_passed = micros() - frame_start;
 				frame_start = micros();
 				fifoCount -= packetSize;
-			}
+			}*/
+			mpu.getFIFOBytes(fifoBuffer, packetSize);	//Read packets until the most recent one is reached
+			mpu.resetFIFO();
+
 			mpu.dmpGetQuaternion(&q, fifoBuffer);	//get various vectors
 			mpu.dmpGetGravity(&gravity, &q);
 			mpu.dmpGetAccel(&aa, fifoBuffer);
@@ -184,6 +187,10 @@ public:
 		memcpy(telemetry + 3, accel, 3);
 		memcpy(telemetry + 6, vel, 3);
 		return telemetry;
+	}
+
+	void reset() {
+		mpu.resetFIFO();
 	}
 
 	float accel_x() { return accel[0]; }

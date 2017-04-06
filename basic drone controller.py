@@ -76,7 +76,7 @@ while running:
         thrust+=1
         changed=True
     if changed:
-        ser.write(str(thrust).encode("ascii"))
+        ser.write(("%03d\n"%thrust).encode("ascii"))
         screen.fill((0,0,0))
         screen.blit(font.render(str(thrust),True,(255,255,255)),(0,0))
         changed=False
