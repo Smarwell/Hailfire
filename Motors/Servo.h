@@ -3,7 +3,7 @@
 This code replaces the old motor control code. It hijacks the fifth hardware timer 
 on the Mega to drive the motors through interrupts.
 
-This code will only run on the Arduino Mega 2560, and it *will* break anything that 
+This code will only run on the Arduino Mega 2560, and it will break anything that 
 relies on hardware timer 5 to run, including PWM for pins 44-46 and the builtin 
 Servo library.
 
@@ -46,7 +46,7 @@ const uint16_t min_compare = 17693;	//1100 microseconds * ~16 clock cycles per m
 const uint16_t max_compare = 32058;	//2000 microseconds
 									//The exact values were determined experimentally
 
-const float max_diff = 1;
+const float max_diff = .25;
 
 uint8_t motor_queue_progress = 0;
 uint16_t motor_compares[4];
@@ -96,6 +96,7 @@ public:
 
 	void set_power_diff(int motor, float power) {
 		if (power > max_diff) power = max_diff;
+		if (power < -max_diff) power = -max_diff;
 		power_diffs[motor] = power;
 		update_power(motor);
 	}
@@ -103,6 +104,7 @@ public:
 	void modify_power_diff(int motor, float dpower) {
 		power_diffs[motor] += dpower;
 		if (power_diffs[motor] > max_diff) power_diffs[motor] = max_diff;
+		if (power_diffs[motor] < -max_diff) power_diffs[motor] = -max_diff;
 		update_power(motor);
 	}
 

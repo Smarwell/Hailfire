@@ -1,12 +1,12 @@
 #pragma once
 
-const float YAW_P = 0.1;
+const float YAW_P = .3;
 const float YAW_I = 0;
 const float YAW_D = 0;
 
-const float PITCH_P = 0.10;// .10;
+const float PITCH_P = .25;
 const float PITCH_I = 0;
-const float PITCH_D = 2000;// 2000;
+const float PITCH_D = 10000;
 
 const float ROLL_P = PITCH_P;
 const float ROLL_I = PITCH_I;
@@ -33,6 +33,10 @@ class Drone {
 	MPU mpu;
 	int flight_mode;
 	bool ready;
+
+	float vel_x;
+	float vel_y;
+	float vel_z;
 
 	PID yaw_pid;
 	PID pitch_pid;

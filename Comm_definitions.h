@@ -42,7 +42,7 @@ void comm_parse() {
 		drone.set_mode(HOLD_POS);
 		break;
 	case SET_THRUST:
-		//Serial.println(comm_arg);
+		Serial.println(comm_arg);
 		drone.set_thrust(comm_arg);
 		break;
 	default:
@@ -71,6 +71,7 @@ void check_for_message() {
 		if (val == 257) 
 			drone.reenable_pid_controllers();
 		drone.set_thrust((uint8_t)val);
+		Serial1.println(val);
 		//comm_command = Serial1.read();
 		//comm_arg = Serial1.read();
 		//comm_parse();

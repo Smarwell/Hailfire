@@ -1,69 +1,8 @@
 #pragma once 
-/*
-class PID
-{
-private:
-public:
-	double constantP;
-	double constantI;
-	double constantD;
-	double setPoint;
-	double processVariable;
-	double currentError;
-	double derivative;
-	double integral;
-	double previousError;
-	double output;
-	int counter;
-	double previousProccessVariables[5]; 
-	long unsigned int frame;
 
-	PID(double p, double i, double d, double sp = 0.0 , double pv = 0.0, double err = 0.0)
-	{
-		constantP=p;
-		constantI=i;
-		constantD=d;
-		setPoint=sp;
-		processVariable=pv;
-		currentError=err;
-		derivative=0;
-		integral=0;
-		previousError=0;
-		output=0;
-		counter=1;
-		previousProccessVariables[0]=pv;
-		frame = micros()/1000.0;
-	}
+#include "MPU\MPU6050_6Axis_MotionApps20_edited.h"
 
-	void setSetPoint(double point){setPoint=point;}
-	double getSetPoint(){return setPoint;}
-	double* getPreviousProccessVariables(){return previousProccessVariables;}
-	void setProccessVariable(double pv)
-	{
-		processVariable=pv;
-		previousProccessVariables[counter%5]=pv;
-		counter++;
-	}
-
-
-	float proc(float processVariable)
-	{
-		frame = micros()/1000.0 - frame;
-		previousProccessVariables[counter%5]=processVariable;
-		currentError=setPoint-processVariable;
-		integral+=currentError*frame;
-		derivative=(currentError-previousError)/frame;
-		Serial1.println(String(currentError) + "    " + String(constantP));
-		delay(50);
-		output=(constantP*currentError)+(constantI*integral)+(constantD*derivative);
-		previousError=currentError;
-		counter++;
-		return output;
-	}
-
-};
-
-*/
+const int der_sample_size = 3;
 
 class PID {
 public:
@@ -74,7 +13,7 @@ public:
 	float setpoint;
 	float error;
 	float past_error;
-	float past_slopes[5];
+	float past_slopes[der_sample_size];
 	int slope;
 	float integ_error; //The time integral of the error
 	float der_error; //The time derivative of the error
@@ -92,7 +31,7 @@ public:
 		error = 0.0;
 		past_error = 0.0;
 		slope = 0;
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < der_sample_size; i++) {
 			past_slopes[i] = 0.0;
 		}
 		last_update = micros();
@@ -107,7 +46,7 @@ public:
 		error = 0.0;
 		past_error = 0.0;
 		slope = 0;
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < der_sample_size; i++) {
 			past_slopes[i] = 0.0;
 		}
 		last_update = micros();
@@ -119,18 +58,18 @@ public:
 	}
 
 	inline float derivative_error() {
-		past_slopes[slope % 5] = (error - past_error) / frame;
+		past_slopes[slope % der_sample_size] = frame ? (error - past_error) / frame : 0;
 		slope++;
 		der_error = 0;
-		for (int i = 0; i < 5; i++) {
-			der_error = der_error + past_slopes[i] / 5.0;
+		for (int i = 0; i < der_sample_size; i++) {
+			der_error = der_error + past_slopes[i] / der_sample_size;
 		}
 		return der_error;
 	}
 
 	float calc(float current_val) {
 		val = current_val;
-		error = setpoint - current_val;
+		error = FCOMP_PI(setpoint, current_val);
 		frame = (micros() - last_update);
 		last_update = micros();
 		result = pgain*error + igain*integral_error() + dgain*derivative_error();

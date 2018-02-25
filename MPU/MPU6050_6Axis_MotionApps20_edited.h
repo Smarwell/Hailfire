@@ -37,6 +37,10 @@ THE SOFTWARE.
 
 #include "I2Cdev.h"
 #include "helper_3dmath.h"
+#include "math.h"
+
+#define FDIST_PI(x, y) (fmin(fabs(x-y), 2*PI - fabs(x-y)))
+#define FCOMP_PI(x, y) (FDIST_PI(x, y) * ((x > y &&  x - y < PI || x < y && y - x > PI)? -1 : 1))
 
 // MotionApps 2.0 DMP implementation, built using the MPU-6050EVB evaluation board
 #define MPU6050_INCLUDE_DMP_MOTIONAPPS20
@@ -549,11 +553,11 @@ uint8_t MPU6050::dmpInitialize() {
     return 0; // success
 }
 
-float approx_atan(float x) {
+inline float approx_atan(float x) {
 	return 0.785398*x - x*(fabs(x) - 1)*(0.2447 + 0.0663*fabs(x));
 }
 
-float fast_atan(float x) {
+inline float fast_atan(float x) {
 	if (x>1) {
 		return 1.5707963 - approx_atan(1 / x);
 	}

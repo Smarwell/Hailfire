@@ -32,10 +32,6 @@ void loop() {
 	if (drone.is_ready()) {
 		drone.update();
 		update_counter++;
-		if (update_counter == 10) {
-			drone.periodic_update();
-			update_counter = 0;
-		}
 	}
 	else {
 		send_message(0b11111111, "Drone not ready");

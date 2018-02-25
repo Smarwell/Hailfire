@@ -67,28 +67,25 @@ public:
 	float accel_offsets[3];
 	float gyro_offsets[3];
 
-	float* old_accel;
 	float accel[3];
 	float ypr[3];
-	float vel[3];
-
-	float telemetry[9];
+	float new_ypr[3];
 
 	MPU() {};
 
 	/*Tries to initialize the MPU*/
 	bool start() {
-
+		Serial1.println("Starting MPU...");
+		#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
 		Wire.begin();
 		TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz)
+		#elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
+		Fastwire::setup(400, true);
+		#endif
 		mpu.initialize();
-
 		devStatus = mpu.dmpInitialize();
 		if (devStatus == 0) {
 			mpu.setDMPEnabled(true);
-
-			//attachInterrupt(0, dmpDataReady, RISING);
-			//mpuIntStatus = mpu.getIntStatus();
 
 			calibrated = false;
 
@@ -120,23 +117,41 @@ public:
 			send_message(MPU_FIFO_OVERFLOW, "The MPU's FIFO has overflowed and been reset");
 			return 2;
 		}
-		else if (mpuIntStatus & 0x02 || true) {		//data ready
-			
-			/*while (fifoCount >= packetSize) {	//If multiple packets have been written to the FIFO,
-				mpu.getFIFOBytes(fifoBuffer, packetSize);	//Read packets until the most recent one is reached
-				time_passed = micros() - frame_start;
-				frame_start = micros();
-				fifoCount -= packetSize;
-			}*/
+		else {		//data ready
+			/*
+			if(fifoCount%packetSize!=0){
+				mpu.resetFIFO();
+			}
+			else {
+				while (fifoCount >= packetSize) {	//If multiple packets have been written to the FIFO,
+					mpu.getFIFOBytes(fifoBuffer, packetSize);	//Read packets until the most recent one is reached
+					fifoCount = mpu.getFIFOCount();
+				}
+			}
+			*/
+			//start_t = micros();
 			mpu.getFIFOBytes(fifoBuffer, packetSize);	//Read packets until the most recent one is reached
+			//end_t = micros();
 			mpu.resetFIFO();
 
 			mpu.dmpGetQuaternion(&q, fifoBuffer);	//get various vectors
 			mpu.dmpGetGravity(&gravity, &q);
 			mpu.dmpGetAccel(&aa, fifoBuffer);
-			mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);	//load the data into more easily used formats
+			mpu.dmpGetYawPitchRoll(new_ypr, &q, &gravity);	//load the data into more easily used formats
 			mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-			//old_accel = accel;
+			
+			if (calibrated) {
+				if (FDIST_PI(new_ypr[0], ypr[0]) < 0.5 && FDIST_PI(new_ypr[1], ypr[1]) < 0.5 && FDIST_PI(new_ypr[2], ypr[2]) < 0.5) {
+					memcpy(ypr, new_ypr, 3 * sizeof(float));
+				}
+				else {
+					//Serial1.println("Bad gyro value filtered");
+				}
+			}
+			else {
+				memcpy(ypr, new_ypr, 3 * sizeof(float));
+			}
+
 			accel[0] = aaReal.x;
 			accel[1] = aaReal.y;
 			accel[2] = aaReal.z;
@@ -161,36 +176,26 @@ public:
 			gyro_offsets[0] = gyro_offsets[0] + ypr[0];
 			gyro_offsets[1] = gyro_offsets[1] + ypr[1];
 			gyro_offsets[2] = gyro_offsets[2] + ypr[2];
-			//Serial1.println("Calibrate: " + String(ypr[0]));
 		}
 		gyro_offsets[0] = gyro_offsets[0] / 100.0;
 		gyro_offsets[1] = gyro_offsets[1] / 100.0;
 		gyro_offsets[2] = gyro_offsets[2] / 100.0;
-		//determined experimentally
-		/*
-		accel_offsets[0] = 22.56;
-		accel_offsets[1] = -14.82;
-		accel_offsets[2] = -318.353;
-		*/
 
-		vel[0] = 0;
-		vel[1] = 0;
-		vel[2] = 0;
 		calibrated = true;
 		poll();
 		return 0;
 		Serial1.println("MPU calibrated");
 	}
 
-	float* get_telemetry() {
-		memcpy(telemetry, ypr, 3);
-		memcpy(telemetry + 3, accel, 3);
-		memcpy(telemetry + 6, vel, 3);
-		return telemetry;
-	}
-
 	void reset() {
 		mpu.resetFIFO();
+		calibrated = false;
+		poll();
+		calibrated = true;
+	}
+
+	void report() {
+		Serial1.println(ypr[1]);
 	}
 
 	float accel_x() { return accel[0]; }

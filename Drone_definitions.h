@@ -2,11 +2,12 @@
 
 #include "Drone.h"
 
+extern int update_counter;
+
 void Drone::init() {
 	Serial1.println("\n\n\nStarting up");
 	servos.start();
 	ready = mpu.start();
-
 	ready = ready && wait_for_MPU_ready(mpu);
 
 	ready = ready && comm_check();
@@ -43,16 +44,24 @@ void Drone::update() {
 	end = micros();
 	if (pid_enabled) {
 		servos.reset_diffs();
-		res = yaw_pid.calc(mpu.gyro_y());
-		servos.manip_motors(0, 3, 1, 2, res);
+		servos.manip_motors(0, 3, 1, 2, yaw_pid.calc(mpu.gyro_y()));
 		servos.manip_motors(2, 3, 0, 1, pitch_pid.calc(mpu.gyro_p()));
 		servos.manip_motors(1, 3, 0, 2, roll_pid.calc(mpu.gyro_r()));
+		if (update_counter % 10 == 0) {
+			//pitch_pid.report();
+			//servos.report();
+			//mpu.report();
+		}
 	}
+	if (update_counter % 5 == 0) {
+		periodic_update();
+	}
+	update_counter++;
 }
 
 void Drone::periodic_update() {
 	//check battery voltage here, and whatever else gets thought of.
-	//Serial.println(roll_pid.der_error);
+	//Serial1.println(String(servos.get_power(0)) + "   " + String(mpu.ypr[2]));
 }
 
 void Drone::reset_pid_controllers() {

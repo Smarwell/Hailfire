@@ -19,9 +19,6 @@ try:
     for i in count():
         device, port = reg.EnumValue(key, i)[:2]
         print("Device name \"%s\" found at %s" % (device, port))
-        if 'BthModem2' in device:
-            print("choosing %s"%device)
-            choice=port
 except: pass
 
 try:
