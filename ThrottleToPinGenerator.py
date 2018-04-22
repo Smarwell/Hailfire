@@ -9,8 +9,6 @@ PIN3 = 3
 PIN4 = 4
 #Throttles (dynamic-values)
 throt = [0.0, 0.0, 0.0, 0.0]
-#Frequency
-FREQ = 1000	#Hz
 #Time Multiplier (for HIGH/LOW period duration)
 #	where 1/100 is T = 1sec
 TM = 1/100
