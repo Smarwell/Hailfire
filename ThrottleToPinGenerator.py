@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-import time
+from time import sleep
 import threading
 
 #Set Pins for Output
@@ -22,9 +22,9 @@ def workerThread(throt, pin):
 	while throt[4]:
 		up = throt[pin]
 		GPIO.output(pin, 1)
-		time.sleep(up * TM)
+		sleep(up * TM)
 		GPIO.output(pin, 0)
-		time.sleep((100-up)*TM)
+		sleep((100-up)*TM)
 	return
 
 class ThrottleToPinGenerator():
